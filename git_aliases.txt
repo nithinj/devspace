@@ -1,0 +1,10 @@
+git config --global alias.co checkout
+git config --global alias.br branch
+git config --global alias.ci commit
+git config --global alias.st status
+git config --global alias.unstage 'reset HEAD --'
+git config --global alias.last 'log -1 HEAD'
+git config --global alias.apply-gitignore 'git ls-files -ci --exclude-standard -z | xargs -0r git rm --cached'
+git config --global alias.changedfiles 'show --pretty="" --name-only'
+git config --global alias.fetchall branch -r | grep -v '\->' | while read remote; do git branch --track "${remote#origin/}" "$remote"; done; git fetch --all; git pull --all
+git config --global alias.appendchanges '!git add . && git commit --amend --no-edit'

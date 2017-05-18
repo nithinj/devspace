@@ -1,0 +1,17 @@
+#!/bin/sh
+#Creates a hostname from Linux distro and appends to the /etc/hosts file with your ip address
+
+hostname=`uname -a|awk '{print $2}'`
+ipaddr=`hostname -i | awk '{print $1}'`
+if [ ! $ipaddr ]; then
+	dhcient -r; dhclient
+	ipaddr=`hostname -i | awk '{print $1}'`
+	[ ! $ipaddr ] && echo "could not obtain ip address, make sure you are connected to a network"
+fi
+if ! grep -q "$ipaddr $hostname" /etc/hosts; then
+	echo "$ipaddr $hostname $hostname" >> /etc/hosts
+	echo "$ipaddr $hostname $hostname added to /etc/hosts"
+else
+	echo "Address already present in /etc/hosts"
+fi
+
