@@ -1,12 +1,41 @@
 #!/bin/sh
-#Creates a hostname from Linux distro and appends to the /etc/hosts file with your ip address
 
-hostname=`uname -a|awk '{print $2}'`
-ipaddr=`hostname -i | awk '{print $1}'`
-if [ ! $ipaddr ]; then
-	dhcient -r; dhclient
-	ipaddr=`hostname -i | awk '{print $1}'`
-	[ ! $ipaddr ] && echo "could not obtain ip address, make sure you are connected to a network"
+valid_ip() {
+    local  ip=$1
+    local  stat=1
+    [ "$ip" == "127.0.0.1" ] && return 1
+
+    if [[ $ip =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+        OIFS=$IFS
+        IFS='.'
+        ip=($ip)
+        IFS=$OIFS
+        [[ ${ip[0]} -le 255 && ${ip[1]} -le 255 \
+            && ${ip[2]} -le 255 && ${ip[3]} -le 255 ]]
+        stat=$?
+    fi
+    return $stat
+}
+
+get_ip_addr() {
+    ifconfig | grep eno -A 2 | grep 'inet\ ' | head -1 | awk '{print $2}'
+}
+
+hostname=`lsb_release -i|awk '{print $NF}'`
+hostname $hostname
+old_ipaddr=`hostname -i`
+for ipaddr in $old_ipaddr; do
+        addr_pair="$ipaddr $hostname"
+        eval "sed -i '/$addr_pair/d' /etc/hosts"
+done
+
+ipaddr=`get_ip_addr`
+
+if ! valid_ip "$ipaddr"; then
+	eval "dhclient -r; dhclient"
+	ipaddr=`get_ip_addr`
+	ret=`valid_ip "$ipaddr"`
+	[[ $ret == 1 ]] && echo "could not obtain ip address, make sure you are connected to a network"
 fi
 if ! grep -q "$ipaddr $hostname" /etc/hosts; then
 	echo "$ipaddr $hostname $hostname" >> /etc/hosts
