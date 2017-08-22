@@ -32,7 +32,6 @@ alias mkdir='mkdir -pv'
 # install  colordiff package :)
 alias diff='colordiff'
 
-alias mount='mount |column -t'
 
 # handy short cuts #
 alias h='history'
@@ -63,5 +62,4 @@ alias autopep='autopep8 --in-place --aggressive --aggressive'
 
 #improving terminal appearance
 export GREP_OPTIONS='--color=auto'
-export PS1='\e[33;1m\u@\h: \e[31m\W\e[0m\$ '
 alias clear="echo -e '\e[2J\n\n'"
